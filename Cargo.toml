@@ -1,0 +1,16 @@
+[package]
+name = "web_server_practice"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-web = "4.2.1"
+uuid = "1.2.2"
+serde = "1.0.152"
+log = "0.4.17"
+env_logger = "0.10.0"
+strum = "0.24.1"
+strum_macros = "0.24.3"
+derive_more = "0.99.17"
+mongodb = "2.3.1"
+redis = "0.22.2"
