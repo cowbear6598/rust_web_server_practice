@@ -1,20 +1,12 @@
 extern crate web_server_practice;
 
+use std::time::Duration;
 use actix_web::{App, web, test::{init_service, TestRequest, call_and_read_body_json}};
+use serde_json::{json};
 use web_server_practice::{mongo, mongo::controllers, mongo::models};
 
 #[actix_web::test]
-async fn should_mongo_user_controllers_success() {
-    let user = models::user::User {
-        name: "test".to_string(),
-        email: "cowbear6598@gmail.com".to_string(),
-    };
-
-    should_create_user_success(&user).await;
-    should_get_user_success(&user).await;
-}
-
-async fn should_create_user_success(user: &models::user::User) {
+async fn should_create_user_success() {
     let client = mongo::mongo_connect().await;
 
     let app = init_service(
@@ -22,48 +14,79 @@ async fn should_create_user_success(user: &models::user::User) {
             .app_data(web::Data::new(client))
             .service(controllers::user::add_user)
     ).await;
+
+    let user = get_test_user();
 
     let req = TestRequest::post()
         .uri("/api/user/add")
         .set_json(&user)
         .to_request();
 
-    let res: models::Response<models::user::User> = call_and_read_body_json(&app, req).await;
+    let res: serde_json::Value = call_and_read_body_json(&app, req).await;
 
-    assert_eq!(res, models::Response {
-        status: 0,
-        message: "ok".to_string(),
-        data: models::user::User {
-            name: "test".to_string(),
-            email: "cowbear6598@gmail.com".to_string(),
-        },
-    });
+    assert_eq!(res, json!({
+        "status": 0,
+        "message": "ok"
+    }));
 }
 
-async fn should_get_user_success(user: &models::user::User) {
+#[actix_web::test]
+async fn should_get_user_success() {
+    tokio::time::sleep(Duration::from_secs(1)).await;
+
     let client = mongo::mongo_connect().await;
 
     let app = init_service(
         App::new()
             .app_data(web::Data::new(client))
-            .service(controllers::user::add_user)
             .service(controllers::user::get_user)
     ).await;
+
+    let user = get_test_user();
 
     let req = TestRequest::get()
         .uri(&format!("/api/user/info/{}", &user.email))
         .to_request();
 
-    let res: models::Response<models::user::User> = call_and_read_body_json(&app, req).await;
+    let res: serde_json::Value = call_and_read_body_json(&app, req).await;
 
-    assert_eq!(res, models::Response {
-        status: 0,
-        message: "ok".to_string(),
-        data: models::user::User {
-            name: "test".to_string(),
-            email: "cowbear6598@gmail.com".to_string(),
-        },
-    });
+    assert_eq!(res, json! ({
+        "status": 0,
+        "message": "ok",
+        "data": user
+    }));
 }
 
+#[actix_web::test]
+async fn should_delete_user_success() {
+    tokio::time::sleep(Duration::from_secs(2)).await;
 
+    let client = mongo::mongo_connect().await;
+
+    let app = init_service(
+        App::new()
+            .app_data(web::Data::new(client))
+            .service(controllers::user::delete_user)
+    ).await;
+
+    let user = get_test_user();
+
+    let req = TestRequest::delete()
+        .uri("/api/user/delete")
+        .set_json(&user)
+        .to_request();
+
+    let res: serde_json::Value = call_and_read_body_json(&app, req).await;
+
+    assert_eq!(res, json!({
+        "status": 0,
+        "message": "ok"
+    }))
+}
+
+fn get_test_user() -> models::user::User {
+    models::user::User {
+        name: "test".to_string(),
+        email: "cowbear6598@gmail.com".to_string(),
+    }
+}

@@ -17,6 +17,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(logger)
             .service(controllers::user::add_user)
             .service(controllers::user::get_user)
+            .service(controllers::user::delete_user)
     })
         .bind(("127.0.0.1", 8080))?
         .run()
