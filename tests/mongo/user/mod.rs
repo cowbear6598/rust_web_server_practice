@@ -32,7 +32,7 @@ async fn should_create_user_success() {
 
 #[actix_web::test]
 async fn should_get_user_success() {
-    tokio::time::sleep(Duration::from_secs(1)).await;
+    tokio::time::sleep(Duration::from_millis(200)).await;
 
     let client = mongo::mongo_connect().await;
 
@@ -50,7 +50,7 @@ async fn should_get_user_success() {
 
     let res: serde_json::Value = call_and_read_body_json(&app, req).await;
 
-    assert_eq!(res, json! ({
+    assert_eq!(res, json!({
         "status": 0,
         "message": "ok",
         "data": user
@@ -59,7 +59,7 @@ async fn should_get_user_success() {
 
 #[actix_web::test]
 async fn should_delete_user_success() {
-    tokio::time::sleep(Duration::from_secs(2)).await;
+    tokio::time::sleep(Duration::from_millis(300)).await;
 
     let client = mongo::mongo_connect().await;
 
@@ -82,6 +82,31 @@ async fn should_delete_user_success() {
         "status": 0,
         "message": "ok"
     }))
+}
+
+#[actix_web::test]
+async fn should_get_no_user_success() {
+    tokio::time::sleep(Duration::from_millis(400)).await;
+
+    let client = mongo::mongo_connect().await;
+    let app = init_service(
+        App::new()
+            .app_data(web::Data::new(client))
+            .service(controllers::user::get_user)
+    ).await;
+
+    let user = get_test_user();
+
+    let req = TestRequest::get()
+        .uri(&format!("/api/user/info/{}", &user.email))
+        .to_request();
+
+    let res: serde_json::Value = call_and_read_body_json(&app, req).await;
+
+    assert_eq!(res, json!({
+        "status": 1,
+        "message": "未找到使用者"
+    }));
 }
 
 fn get_test_user() -> models::user::User {

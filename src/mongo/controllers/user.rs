@@ -40,7 +40,7 @@ pub async fn get_user(client: web::Data<Client>, email: web::Path<String>) -> Ht
         })),
         Ok(None) => HttpResponse::NotFound().json(json!({
             "status": 1,
-            "message": "未找到玩家"
+            "message": "未找到使用者"
         })),
         Err(err) => HttpResponse::InternalServerError().json(json!({
             "status": 1,
