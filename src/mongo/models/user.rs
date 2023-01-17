@@ -9,10 +9,21 @@ pub struct User {
     pub email: String,
     pub phone: String,
     pub account: String,
+    pub password: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct UserLogin {
+    pub account: String,
     pub password: String
 }
 
-pub async fn set_user_field_unique(client: &Client){
+#[derive(Serialize, Deserialize)]
+pub struct UserDelete {
+    pub uid: String
+}
+
+pub async fn set_user_field_unique(client: &Client) {
     let options = IndexOptions::builder().unique(true).build();
     let model = IndexModel::builder()
         .keys(doc! {"uid": 1, "email": 1, "account": 1, "phone": 1})
