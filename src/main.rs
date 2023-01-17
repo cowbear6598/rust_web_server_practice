@@ -10,14 +10,15 @@ async fn main() -> std::io::Result<()> {
 
     let client = mongo_connect().await;
 
-    models::user::set_uid_and_email_unique(&client).await;
+    models::user::set_user_field_unique(&client).await;
 
     HttpServer::new(move || {
         let logger = Logger::default();
         App::new()
             .app_data(Data::new(client.clone()))
             .wrap(logger)
-            .service(controllers::user::add_user)
+            .service(controllers::user::register)
+            .service(controllers::user::login)
             .service(controllers::user::get_user)
             .service(controllers::user::delete_user)
     })

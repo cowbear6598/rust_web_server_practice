@@ -7,12 +7,15 @@ pub struct User {
     pub uid: Option<String>,
     pub name: String,
     pub email: String,
+    pub phone: String,
+    pub account: String,
+    pub password: String
 }
 
-pub async fn set_uid_and_email_unique(client: &Client){
+pub async fn set_user_field_unique(client: &Client){
     let options = IndexOptions::builder().unique(true).build();
     let model = IndexModel::builder()
-        .keys(doc! {"uid": 1, "email": 1})
+        .keys(doc! {"uid": 1, "email": 1, "account": 1, "phone": 1})
         .options(options)
         .build();
 
