@@ -8,7 +8,8 @@ const COLL_NAME: &str = "user";
 
 #[post("api/user/add")]
 pub async fn add_user(client: web::Data<Client>, form: web::Json<models::user::User>) -> HttpResponse {
-    let req_data = form.into_inner();
+    let mut req_data = form.into_inner();
+    req_data.uid = Some(Uuid::new_v4().to_string());
 
     let collection = client.database(DB_NAME).collection(COLL_NAME);
     let result = collection.insert_one(req_data.clone(), None).await;
@@ -16,7 +17,8 @@ pub async fn add_user(client: web::Data<Client>, form: web::Json<models::user::U
     match result {
         Ok(_) => HttpResponse::Ok().json(json!({
                 "status": 0,
-                "message": "ok"
+                "message": "ok",
+                "data": req_data
             })),
         Err(err) =>
             HttpResponse::InternalServerError().json(json!({
