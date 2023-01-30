@@ -10,6 +10,8 @@ pub struct User {
     pub phone: String,
     pub account: String,
     pub password: String,
+    pub created_date: Option<String>,
+    pub last_login_date: Option<String>
 }
 
 #[derive(Serialize, Deserialize)]
@@ -34,5 +36,5 @@ pub async fn set_user_field_unique(client: &Client) {
         .collection::<User>("user")
         .create_index(model, None)
         .await
-        .expect("set uid and email unique failed");
+        .expect("set user unique field failed");
 }

@@ -29,7 +29,14 @@ async fn should_register_success_and_cannot_has_same_user() {
     assert_eq!(res, json!({
         "status": 0,
         "message": "ok",
-        "data": res["data"]
+        "data": {
+            "uid": res["data"]["uid"],
+            "name": "test",
+            "email": "cowbear6598@gmail.com",
+            "phone": "0912345678",
+            "created_date": res["data"]["created_date"],
+            "last_login_date": res["data"]["last_login_date"]
+        }
     }));
 
     let user = get_test_user();
@@ -41,7 +48,10 @@ async fn should_register_success_and_cannot_has_same_user() {
 
     let res: serde_json::Value = call_and_read_body_json(&app, req).await;
 
-    assert_eq!(true, res["message"].to_string().contains("duplicate key"));
+    assert_eq!(res, json!({
+        "status": 1,
+        "message": "此帳號已被註冊"
+    }))
 }
 
 #[actix_web::test]
@@ -125,6 +135,8 @@ fn get_test_user() -> models::user::User {
         email: "cowbear6598@gmail.com".to_string(),
         phone: "0912345678".to_string(),
         account: "test".to_string(),
-        password: "test654321".to_string()
+        password: "test654321".to_string(),
+        created_date: None,
+        last_login_date: None
     }
 }
