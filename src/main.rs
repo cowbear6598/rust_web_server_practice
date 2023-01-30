@@ -21,6 +21,8 @@ async fn main() -> std::io::Result<()> {
             .service(controllers::user::register)
             .service(controllers::user::login)
             .service(controllers::user::delete)
+            .service(controllers::wheel::create)
+            .service(controllers::wheel::delete)
     })
         .bind(("127.0.0.1", 8080))?
         .run()

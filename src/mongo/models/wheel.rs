@@ -1,3 +1,4 @@
+use actix_web::delete;
 use mongodb::{Client, IndexModel, options::IndexOptions};
 use mongodb::bson::doc;
 use serde::{Serialize, Deserialize};
@@ -16,6 +17,11 @@ pub struct Prize {
     pub name: String,
     pub icon_url: String,
     pub count: u16,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct WheelDelete {
+    pub wheel_id: String
 }
 
 pub async fn set_wheel_field_unique(client: &Client) {

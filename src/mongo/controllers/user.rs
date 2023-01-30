@@ -50,13 +50,13 @@ pub async fn register(client: web::Data<Client>, form: web::Json<models::user::U
                     }
                 })),
                 Err(err) => HttpResponse::InternalServerError().json(json!({
-                    "status": 1,
+                    "status": 2,
                     "message": err.to_string()
                 }))
             }
         }
         Err(err) => HttpResponse::InternalServerError().json(json!({
-            "status": 1,
+            "status": 2,
             "message": err.to_string()
         }))
     }
@@ -88,7 +88,7 @@ pub async fn login(client: web::Data<Client>, form: web::Json<models::user::User
             "message": "未找到使用者"
         })),
         Err(err) => HttpResponse::InternalServerError().json(json!({
-            "status": 1,
+            "status": 2,
             "message": err.to_string()
         }))
     }
@@ -112,7 +112,7 @@ pub async fn delete(client: web::Data<Client>, form: web::Json<models::user::Use
             "message": "未找到使用者"
         })),
         Err(err) => HttpResponse::InternalServerError().json(json!({
-            "status": 1,
+            "status": 2,
             "message": err.to_string()
         }))
     }
