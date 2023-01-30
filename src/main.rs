@@ -1,4 +1,4 @@
-use actix_web::{HttpServer, App, web::Data, middleware::Logger};
+use actix_web::{HttpServer, App, web::{Data, scope}, middleware::Logger};
 use web_server_practice::mongo::{controllers, mongo_connect, models};
 
 #[actix_web::main]
@@ -11,6 +11,7 @@ async fn main() -> std::io::Result<()> {
     let client = mongo_connect().await;
 
     models::user::set_user_field_unique(&client).await;
+    models::wheel::set_wheel_field_unique(&client).await;
 
     HttpServer::new(move || {
         let logger = Logger::default();

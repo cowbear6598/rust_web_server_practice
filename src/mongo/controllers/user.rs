@@ -19,37 +19,42 @@ pub async fn register(client: web::Data<Client>, form: web::Json<models::user::U
         {"phone": &req_data.phone}
     ]}, None).await;
 
-    if !result.unwrap().is_none() {
-        return HttpResponse::InternalServerError().json(json!({
+    match result {
+        Ok(Some(_user)) => HttpResponse::InternalServerError().json(json!({
             "status": 1,
             "message": "此帳號已被註冊"
-        }))
-    }
-
-    req_data.uid = Some(Uuid::new().to_string());
-    req_data.password = bcrypt::hash_with_salt(&req_data.password, bcrypt::DEFAULT_COST, SALT_ROUND).unwrap().to_string();
-
-    let start = SystemTime::now();
-    let utc_time = start.duration_since(UNIX_EPOCH).expect("time went backwards");
-
-    req_data.created_date = Some(utc_time.as_secs().to_string());
-    req_data.last_login_date = req_data.created_date.clone();
-
-    let result = collection.insert_one(req_data.clone(), None).await;
-
-    match result {
-        Ok(_) => HttpResponse::Ok().json(json!({
-            "status": 0,
-            "message": "ok",
-            "data": {
-                "uid": req_data.uid,
-                "name": req_data.name,
-                "email": req_data.email,
-                "phone": req_data.phone,
-                "created_date": req_data.created_date,
-                "last_login_date": req_data.last_login_date
-            }
         })),
+        Ok(None) => {
+            req_data.uid = Some(Uuid::new().to_string());
+            req_data.password = bcrypt::hash_with_salt(&req_data.password, bcrypt::DEFAULT_COST, SALT_ROUND).unwrap().to_string();
+
+            let start = SystemTime::now();
+            let utc_time = start.duration_since(UNIX_EPOCH).expect("time went backwards");
+
+            req_data.created_date = Some(utc_time.as_secs().to_string());
+            req_data.last_login_date = req_data.created_date.clone();
+
+            let result = collection.insert_one(req_data.clone(), None).await;
+
+            match result {
+                Ok(_) => HttpResponse::Ok().json(json!({
+                    "status": 0,
+                    "message": "ok",
+                    "data": {
+                        "uid": req_data.uid,
+                        "name": req_data.name,
+                        "email": req_data.email,
+                        "phone": req_data.phone,
+                        "created_date": req_data.created_date,
+                        "last_login_date": req_data.last_login_date
+                    }
+                })),
+                Err(err) => HttpResponse::InternalServerError().json(json!({
+                    "status": 1,
+                    "message": err.to_string()
+                }))
+            }
+        }
         Err(err) => HttpResponse::InternalServerError().json(json!({
             "status": 1,
             "message": err.to_string()
